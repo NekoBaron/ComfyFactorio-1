@@ -785,6 +785,7 @@ local function is_game_lost()
         survival_time_label.style.font_color = {r = 0.22, g = 0.77, b = 0.44}
 
         local market_age_label
+        local timetext
 
         local market_age = FDT.get('market_age')
         if not market_age then
@@ -793,20 +794,13 @@ local function is_game_lost()
 
         if market_age then
             if market_age >= 216000 then
-                market_age_label =
-                    t.add(
-                    {
-                        type = 'label',
-                        caption = math.floor(((market_age / 60) / 60) / 60) .. ' hours ' .. math.ceil((market_age % 216000 / 60) / 60) .. ' minutes'
-                    }
-                )
-                market_age_label.style.font = 'default-bold'
-                market_age_label.style.font_color = {r = 0.33, g = 0.66, b = 0.9}
+                timetext = math.floor(((market_age / 60) / 60) / 60) .. ' hours ' .. math.ceil((market_age % 216000 / 60) / 60) .. ' minutes'
             else
-                market_age_label = t.add({type = 'label', caption = math.ceil((market_age % 216000 / 60) / 60) .. ' minutes'})
-                market_age_label.style.font = 'default-bold'
-                market_age_label.style.font_color = {r = 0.33, g = 0.66, b = 0.9}
+                timetext = math.ceil((market_age % 216000 / 60) / 60) .. ' minutes'
             end
+            market_age_label = t.add({type = 'label', caption = timetext})
+            market_age_label.style.font = 'default-bold'
+            market_age_label.style.font_color = {r = 0.33, g = 0.66, b = 0.9}
         end
 
         local mvp = get_mvps()
@@ -843,15 +837,14 @@ local function is_game_lost()
 
             local results_sent = FDT.get('results_sent')
             if not results_sent then
+		local wave_count_fdt = FDT.get('wave_count')
                 local result = {}
-                insert(result, 'MVP Defender: \\n')
-                insert(result, mvp.killscore.name .. ' with a score of ' .. mvp.killscore.score .. '\\n')
-                insert(result, '\\n')
-                insert(result, 'MVP Builder: \\n')
+                insert(result, 'After ' .. timetext .. '\\n')
+                insert(result, 'The fish market has fallen at wave '.. wave_count_fdt ..'\\n\\n')
+                insert(result, '-MVPS- \\n')
+                insert(result, mvp.killscore.name .. ' with a killscore of ' .. mvp.killscore.score .. '\\n')
                 insert(result, mvp.built_entities.name .. ' built ' .. mvp.built_entities.score .. ' things\\n')
-                insert(result, '\\n')
-                insert(result, 'MVP Deaths: \\n')
-                insert(result, mvp.deaths.name .. ' died ' .. mvp.deaths.score .. ' times')
+                insert(result, 'and sadly ' .. mvp.deaths.name .. ' died ' .. mvp.deaths.score .. ' times')
                 local message = table.concat(result)
                 Server.to_discord_embed(message)
                 FDT.set('results_sent', true)
